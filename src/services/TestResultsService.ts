@@ -158,7 +158,7 @@ export class TestResultsService {
       .then(() => {
         return this.setTestNumber(payload)
           .then((payloadWithTestNumber) => {
-            return this.setExpiryDateAndCertificateNumber(payloadWithTestNumber)
+            return this.generateExpiryDate(payloadWithTestNumber)
               .then((payloadWithExpiryDate: any) => {
                 const payloadWithAnniversaryDate = this.setAnniversaryDate(payloadWithExpiryDate);
                 const payloadWithVehicleId = this.setVehicleId(payloadWithAnniversaryDate);
@@ -252,7 +252,7 @@ export class TestResultsService {
     return payload;
   }
 
-  public setExpiryDateAndCertificateNumber(payload: ITestResultPayload) {
+  public generateExpiryDate(payload: ITestResultPayload) {
     if (payload.testStatus !== "submitted") {
       return Promise.resolve(payload);
     } else {
