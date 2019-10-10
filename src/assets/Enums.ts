@@ -27,7 +27,10 @@ export enum MESSAGES {
     INVALID_JSON = "Body is not a valid JSON.",
     INTERNAL_SERVER_ERROR = "Internal Server Error",
     RECORD_CREATED = "Test records created",
-    BAD_REQUEST = "Bad request"
+    BAD_REQUEST = "Bad request",
+    ID_ALREADY_EXISTS = "Test Result id already exists",
+    CONDITIONAL_REQUEST_FAILED = "The conditional request failed",
+    REASON_FOR_ABANDONING_NOT_PRESENT = "Reason for Abandoning not present on all abandoned tests"
 }
 
 export const VEHICLE_TYPES = {
@@ -36,3 +39,16 @@ export const VEHICLE_TYPES = {
     TRL: "trl"
 };
 
+export const TEST_TYPE_CLASSIFICATION = {
+    ANNUAL_WITH_CERTIFICATE: "Annual With Certificate"
+};
+
+export const TEST_RESULT = {
+    ABANDONED: "abandoned",
+    PASS: "pass",
+    PRS: "prs"
+};
+
+export const TEST_STATUS = {
+    SUBMITTED: "submitted"
+}
