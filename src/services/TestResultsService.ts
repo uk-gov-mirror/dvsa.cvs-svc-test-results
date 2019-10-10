@@ -142,6 +142,9 @@ export class TestResultsService {
     if (this.shouldContainCertificateNumber(payload)) {
       return Promise.reject(new HTTPError(400, ERRORS.NoCertificateNumber));
     }
+    if (this.adrTestTypeWithoutExpiryDate(payload)) {
+      return Promise.reject(new HTTPError(400, ERRORS.NoExpiryDate));
+    }
     if (validation !== null && validation.error) {
       return Promise.reject(new HTTPError(400,
           {
