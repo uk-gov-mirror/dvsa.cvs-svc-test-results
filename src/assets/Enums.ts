@@ -45,11 +45,13 @@ export const TEST_TYPE_CLASSIFICATION = {
 };
 
 export const TEST_RESULT = {
-    ABANDONED: "abandoned",
     PASS: "pass",
+    FAIL: "fail",
+    ABANDONED: "abandoned",
     PRS: "prs"
 };
 
 export const TEST_STATUS = {
-    SUBMITTED: "submitted"
+    SUBMITTED: "submitted",
+    CANCELLED: "cancelled"
 }

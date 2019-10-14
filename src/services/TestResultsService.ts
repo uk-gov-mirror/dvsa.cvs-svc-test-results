@@ -139,10 +139,10 @@ export class TestResultsService {
     if (fieldsNullWhenDeficiencyCategoryIsOtherThanAdvisoryResponse.result) {
       return Promise.reject(new HTTPError(400, fieldsNullWhenDeficiencyCategoryIsOtherThanAdvisoryResponse.missingFields + " are null for a defect with deficiency category other than advisory"));
     }
-    if (this.shouldContainCertificateNumber(payload)) {
+    if (this.isMissingRequiredCertificateNumber(payload)) {
       return Promise.reject(new HTTPError(400, ERRORS.NoCertificateNumber));
     }
-    if (this.adrTestTypeWithoutExpiryDate(payload)) {
+    if (this.isAdrTestTypeWithoutExpiryDate(payload)) {
       return Promise.reject(new HTTPError(400, ERRORS.NoExpiryDate));
     }
     if (validation !== null && validation.error) {
@@ -397,7 +397,7 @@ export class TestResultsService {
         });
   }
 
-  public shouldContainCertificateNumber (payload: ITestResultPayload): boolean {
+  public isMissingRequiredCertificateNumber (payload: ITestResultPayload): boolean {
     let bool = false;
     if (payload.testTypes) {
       payload.testTypes.forEach(testType => {
@@ -435,17 +435,12 @@ export class TestResultsService {
   }
 
   public isTestTypeAdr(testType: any): boolean {
-    let bool = false;
     const adrTestTypeIds = ["50", "59", "60"];
-    adrTestTypeIds.forEach((id) => {
-      if (id === testType.testTypeId) {
-        bool = true;
-      }
-    });
-    return bool;
+
+    return adrTestTypeIds.includes(testType.testTypeId)
   }
 
-  public adrTestTypeWithoutExpiryDate(payload: ITestResultPayload): boolean {
+  public isAdrTestTypeWithoutExpiryDate(payload: ITestResultPayload): boolean {
     let bool = false;
     if (payload.testTypes) {
       payload.testTypes.forEach(testType => {
