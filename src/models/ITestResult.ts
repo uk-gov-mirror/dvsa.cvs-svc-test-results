@@ -31,6 +31,14 @@ export interface ITestResult {
   regnDate?: string | Date; // Used only for PSV and HGV
   trailerId?: string; // Mandatory for TRL, not applicable to PSV and HGV
   firstUseDate?: string | Date; // Used only for TRL
+  testVersion?: string;
+  reasonForCreation?: string;
+  createdByName?: string;
+  createdById?: string;
+  createdAt?: string;
+  lastUpdatedByName?: string;
+  lastUpdatedById?: string;
+  lastUpdatedAt?: string;
 }
 
 export interface TestType {
