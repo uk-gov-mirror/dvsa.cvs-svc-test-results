@@ -1,5 +1,6 @@
 import * as dateFns from "date-fns";
 import * as _ from "lodash";
+import {TEST_VERSION} from "../assets/Enums";
 
 
 export class GetTestResults {
@@ -26,6 +27,16 @@ export class GetTestResults {
 
     return testResults.filter((testResult: { testStartTimestamp: string | number | Date; testEndTimestamp: string | number | Date; }) => {
       return dateFns.isAfter(testResult.testStartTimestamp, fromDateTime) && dateFns.isBefore(testResult.testEndTimestamp, toDateTime);
+    });
+  }
+
+  public static filterTestResultsByTestVersion(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }, testVersion: string = TEST_VERSION.CURRENT) {
+    return testResults.filter((testResult) => {
+      if (testVersion === TEST_VERSION.CURRENT) {
+        return (!testResult.testVersion || testResult.testVersion === testVersion);
+      } else {
+        return testResult.testVersion === testVersion;
+      }
     });
   }
 

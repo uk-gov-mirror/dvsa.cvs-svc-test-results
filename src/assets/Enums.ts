@@ -75,6 +75,12 @@ export const TEST_STATUS = {
     CANCELLED: "cancelled"
 };
 
+export const TEST_VERSION = {
+    CURRENT: "current",
+    ARCHIVED: "archived",
+    ALL: "all"
+};
+
 export const HGV_TRL_ROADWORTHINESS_TEST_TYPES = {
     IDS: ["122", "91", "101", "62", "63"]
 };

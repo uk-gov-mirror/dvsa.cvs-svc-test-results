@@ -5,4 +5,5 @@ export interface ITestResultFilters {
     testerStaffId?: any;
     testStationPNumber?: any;
     status?: string;
+    testVersion?: string;
 }

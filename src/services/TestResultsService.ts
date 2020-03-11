@@ -2,7 +2,15 @@ import { HTTPError } from "../models/HTTPError";
 import { TestResultsDAO } from "../models/TestResultsDAO";
 import * as dateFns from "date-fns";
 import { GetTestResults } from "../utils/GetTestResults";
-import { MESSAGES, ERRORS, VEHICLE_TYPES, TEST_TYPE_CLASSIFICATION, TEST_RESULT, TEST_STATUS, HGV_TRL_ROADWORTHINESS_TEST_TYPES } from "../assets/Enums";
+import {
+  MESSAGES,
+  ERRORS,
+  VEHICLE_TYPES,
+  TEST_TYPE_CLASSIFICATION,
+  TEST_RESULT,
+  TEST_STATUS,
+  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION
+} from "../assets/Enums";
 import testResultsSchemaHGVCancelled from "../models/TestResultsSchemaHGVCancelled";
 import testResultsSchemaHGVSubmitted from "../models/TestResultsSchemaHGVSubmitted";
 import testResultsSchemaPSVCancelled from "../models/TestResultsSchemaPSVCancelled";
@@ -92,6 +100,10 @@ export class TestResultsService {
 
   public applyTestResultsFilters(data: ITestResultData, filters: ITestResultFilters) {
     let testResults = this.checkTestResults(data);
+    if (filters.testVersion === TEST_VERSION.ALL) {
+      return testResults;
+    }
+    testResults = GetTestResults.filterTestResultsByTestVersion(testResults, filters.testVersion);
     testResults = GetTestResults.filterTestResultByDate(testResults, filters.fromDateTime, filters.toDateTime);
     if (filters.testStatus) {
       testResults = GetTestResults.filterTestResultsByParam(testResults, "testStatus", filters.testStatus);
