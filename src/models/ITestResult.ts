@@ -39,6 +39,7 @@ export interface ITestResult {
   lastUpdatedByName?: string;
   lastUpdatedById?: string;
   lastUpdatedAt?: string;
+  shouldEmailCertificate?: string;
 }
 
 export interface TestType {
