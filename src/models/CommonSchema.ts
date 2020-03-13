@@ -93,6 +93,7 @@ export const testResultsCommonSchema = {
     createdById: Joi.string().optional(),
     lastUpdatedAt: Joi.string().optional().allow(null),
     lastUpdatedByName: Joi.string().optional(),
-    lastUpdatedById: Joi.string().optional()
+    lastUpdatedById: Joi.string().optional(),
+    shouldEmailCertificate: Joi.string().optional()
 };
 

@@ -195,6 +195,9 @@ export class TestResultsService {
     oldTestResult.lastUpdatedAt = date;
     oldTestResult.lastUpdatedByName = msUserDetails.msUser;
     oldTestResult.lastUpdatedById = msUserDetails.msOid;
+
+    newTestResult.shouldEmailCertificate = "false";
+    oldTestResult.shouldEmailCertificate = "false;";
   }
 
   public getValidationSchema(vehicleType: string, testStatus: string) {
