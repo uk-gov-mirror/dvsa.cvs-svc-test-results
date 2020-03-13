@@ -2,7 +2,17 @@ import { HTTPError } from "../models/HTTPError";
 import { TestResultsDAO } from "../models/TestResultsDAO";
 import * as dateFns from "date-fns";
 import { GetTestResults } from "../utils/GetTestResults";
-import { MESSAGES, ERRORS, VEHICLE_TYPES, TEST_TYPE_CLASSIFICATION, TEST_RESULT, TEST_STATUS, HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_CODES_FOR_CALCULATING_EXPIRY } from "../assets/Enums";
+import { v4 as uuidv4 } from "uuid";
+import {
+  MESSAGES,
+  ERRORS,
+  VEHICLE_TYPES,
+  TEST_TYPE_CLASSIFICATION,
+  TEST_RESULT,
+  TEST_STATUS,
+  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION,
+  TEST_CODES_FOR_CALCULATING_EXPIRY
+} from "../assets/Enums";
 import testResultsSchemaHGVCancelled from "../models/TestResultsSchemaHGVCancelled";
 import testResultsSchemaHGVSubmitted from "../models/TestResultsSchemaHGVSubmitted";
 import testResultsSchemaPSVCancelled from "../models/TestResultsSchemaPSVCancelled";
@@ -138,7 +148,7 @@ export class TestResultsService {
           delete payload.vin;
           _.mergeWith(newTestResult, payload);
           this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
-          newTestResult.testResultId = Date.now().toString();
+          newTestResult.testResultId = uuidv4();
           return this.testResultsDAO.updateTestResult(newTestResult, oldTestResult)
               .then((data) => {
                 return newTestResult;
