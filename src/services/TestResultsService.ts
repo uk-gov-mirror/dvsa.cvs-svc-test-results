@@ -2,6 +2,7 @@ import { HTTPError } from "../models/HTTPError";
 import { TestResultsDAO } from "../models/TestResultsDAO";
 import * as dateFns from "date-fns";
 import { GetTestResults } from "../utils/GetTestResults";
+import { v4 as uuidv4 } from "uuid";
 import {
   MESSAGES,
   ERRORS,
@@ -148,7 +149,7 @@ export class TestResultsService {
           delete payload.vin;
           _.mergeWith(newTestResult, payload);
           this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
-          newTestResult.testResultId = Date.now().toString();
+          newTestResult.testResultId = uuidv4();
           return this.testResultsDAO.updateTestResult(newTestResult, oldTestResult)
               .then((data) => {
                 return newTestResult;
