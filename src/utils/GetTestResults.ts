@@ -1,6 +1,7 @@
 import * as dateFns from "date-fns";
 import * as _ from "lodash";
 import {TEST_VERSION} from "../assets/Enums";
+import {ITestResult} from "../models/ITestResult";
 
 
 export class GetTestResults {
@@ -30,7 +31,7 @@ export class GetTestResults {
     });
   }
 
-  public static filterTestResultsByTestVersion(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }, testVersion: string = TEST_VERSION.CURRENT) {
+  public static filterTestResultsByTestVersion(testResults: ITestResult[], testVersion: string = TEST_VERSION.CURRENT): ITestResult[] {
     return testResults.filter((testResult) => {
       if (testVersion === TEST_VERSION.CURRENT) {
         return (!testResult.testVersion || testResult.testVersion === testVersion);

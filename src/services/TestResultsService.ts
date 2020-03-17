@@ -10,7 +10,7 @@ import {
   TEST_TYPE_CLASSIFICATION,
   TEST_RESULT,
   TEST_STATUS,
-  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION,
+  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION, countryOfRegistration,
   TEST_CODES_FOR_CALCULATING_EXPIRY
 } from "../assets/Enums";
 import testResultsSchemaHGVCancelled from "../models/TestResultsSchemaHGVCancelled";
@@ -125,7 +125,9 @@ export class TestResultsService {
 
   public updateTestResult(systemNumber: string, payload: ITestResult, msUserDetails: IMsUserDetails) {
     this.removeNonEditableAttributes(payload);
-    const validationSchema = this.getValidationSchema(payload.vehicleType, payload.testStatus);
+    let validationSchema = this.getValidationSchema(payload.vehicleType, payload.testStatus);
+    validationSchema = validationSchema!.keys({countryOfRegistration: Joi.string().valid(countryOfRegistration).required().allow("", null)});
+    validationSchema = validationSchema!.optionalKeys(["testStationType", "testerEmailAddress", "testEndTimestamp", "systemNumber", "vin"]);
     const validation: ValidationResult<any> | any | null = Joi.validate(payload, validationSchema);
 
     if (validation !== null && validation.error) {
@@ -144,8 +146,6 @@ export class TestResultsService {
           const newTestResult: ITestResult = _.cloneDeep(oldTestResult);
           newTestResult.testVersion = TEST_VERSION.CURRENT;
           oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
-          delete payload.systemNumber; // user not allowed to update systemNumber or VIN
-          delete payload.vin;
           _.mergeWith(newTestResult, payload);
           this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
           newTestResult.testResultId = uuidv4();
@@ -181,6 +181,12 @@ export class TestResultsService {
       delete testType.testTypeClassification;
     }
     delete testResult.vehicleId;
+    delete testResult.testEndTimestamp;
+    delete testResult.testStationType;
+    delete testResult.testerEmailAddress;
+    delete testResult.testVersion;
+    delete testResult.systemNumber;
+    delete testResult.vin;
   }
 
   public setAuditDetails(newTestResult: ITestResult, oldTestResult: ITestResult, msUserDetails: IMsUserDetails) {

@@ -1,6 +1,6 @@
 import * as Joi from "joi";
 
-export const defectsCommonSchema = {
+export const defectsCommonSchema = Joi.object().keys({
     imNumber: Joi.number().required(),
     imDescription: Joi.string().required().allow(""),
     itemNumber: Joi.number().required(),
@@ -13,9 +13,9 @@ export const defectsCommonSchema = {
     stdForProhibition: Joi.boolean().required().allow(null),
     prohibitionIssued: Joi.boolean().required().allow(null),
     prs: Joi.boolean().required().allow(null)
-};
+});
 
-export const testTypesCommonSchema = {
+export const testTypesCommonSchema = Joi.object().keys({
     name: Joi.string().required(),
     testTypeName: Joi.string().required().allow(""),
     testTypeId: Joi.string().required().allow(""),
@@ -46,9 +46,9 @@ export const testTypesCommonSchema = {
     smokeTestKLimitApplied: Joi.string().max(100).allow(null),
     modificationTypeUsed: Joi.string().max(100).allow(null),
     particulateTrapFitted: Joi.string().max(100).allow(null)
-};
+});
 
-export const testResultsCommonSchema = {
+export const testResultsCommonSchema = Joi.object().keys({
     testResultId: Joi.string().required(),
     systemNumber: Joi.string().required(),
     vin: Joi.string().min(1).max(21).required(),
@@ -95,5 +95,5 @@ export const testResultsCommonSchema = {
     lastUpdatedByName: Joi.string().optional(),
     lastUpdatedById: Joi.string().optional(),
     shouldEmailCertificate: Joi.string().optional()
-};
+});
 

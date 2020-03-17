@@ -48,7 +48,9 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(5);
-                    return testResultsService.updateTestResult(testResultsMockDB[1].systemNumber, testResultsMockDB[1], msUserDetails)
+                    const testToUpdate = testResultsMockDB[1];
+                    testToUpdate.countryOfRegistration = "gb";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .then((returnedRecord: any) => {
                             expect(returnedRecord).not.toEqual(undefined);
                             expect(returnedRecord).not.toEqual({});
@@ -77,7 +79,9 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    return testResultsService.updateTestResult(testResultsMockDB[1].systemNumber, testResultsMockDB[1], msUserDetails)
+                    const testToUpdate = testResultsMockDB[1];
+                    testToUpdate.countryOfRegistration = "gb";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
                             expect(errorResponse.statusCode).toEqual(500);
@@ -101,7 +105,9 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    return testResultsService.updateTestResult(testResultsMockDB[1].systemNumber, testResultsMockDB[1], msUserDetails)
+                    const testToUpdate = testResultsMockDB[1];
+                    testToUpdate.countryOfRegistration = "gb";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
                             expect(errorResponse.statusCode).toEqual(404);
@@ -125,7 +131,9 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    return testResultsService.updateTestResult(testResultsMockDB[1].systemNumber, testResultsMockDB[1], msUserDetails)
+                    const testToUpdate = testResultsMockDB[1];
+                    testToUpdate.countryOfRegistration = "gb";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
                             expect(errorResponse.statusCode).toEqual(404);
