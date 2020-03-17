@@ -85,6 +85,47 @@ export const HGV_TRL_ROADWORTHINESS_TEST_TYPES = {
     IDS: ["122", "91", "101", "62", "63"]
 };
 
+export const countryOfRegistration: string[] = [
+    "gb",
+    "gba",
+    "gbg",
+    "gbj",
+    "gbm",
+    "gbz",
+    "a",
+    "b",
+    "bih",
+    "bg",
+    "hr",
+    "cy",
+    "cz",
+    "dk",
+    "est",
+    "fin",
+    "f",
+    "d",
+    "gr",
+    "h",
+    "irl",
+    "i",
+    "lv",
+    "lt",
+    "l",
+    "m",
+    "nl",
+    "n",
+    "pl",
+    "p",
+    "ro",
+    "sk",
+    "slo",
+    "e",
+    "s",
+    "ch",
+    "non-eu",
+    "not-known"
+];
+
 export const TEST_CODES_FOR_CALCULATING_EXPIRY = {
    CODES: [
         "AAT1", "AAT2", "AAT3", "AAT4", "AAT5",
