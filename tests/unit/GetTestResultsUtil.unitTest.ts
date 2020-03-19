@@ -20,7 +20,7 @@ describe("GetTestResult Util functions", () => {
   describe("filterTestResultsByTestVersion", () => {
     context("when testVersion is CURRENT", () => {
       it("should return all test-results with testVersion=current or which don't have testVersion attribute", () => {
-        const myObject = [
+        const myObject: any[] = [
           {
             testVersion: "current",
             param1: "thing"
@@ -40,7 +40,7 @@ describe("GetTestResult Util functions", () => {
 
     context("when testVersion is ARCHIVED", () => {
       it("should return all test-results with testVersion=archived", () => {
-        const myObject = [
+        const myObject: any[] = [
           {
             testVersion: "current",
             param1: "thing"
