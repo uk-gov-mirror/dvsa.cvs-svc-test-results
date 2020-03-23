@@ -13,10 +13,10 @@ import {
   TEST_VERSION,
   COUNTRY_OF_REGISTRATION,
   TEST_CODES_FOR_CALCULATING_EXPIRY,
-  testTypesGroup1,
-  testTypesGroup2,
-  testTypesGroup3And4And5And10,
-  testTypesGroup6And7And8, testTypesGroup9And11, testTypesGroup12And13
+  TEST_TYPES_GROUP1,
+  TEST_TYPES_GROUP2,
+  TEST_TYPES_GROUP3_4_5_10,
+  TEST_TYPES_GROUP6_7_8, TEST_TYPES_GROUP9_11, TEST_TYPES_GROUP12_13
 } from "../assets/Enums";
 import testResultsSchemaHGVCancelled from "../models/TestResultsSchemaHGVCancelled";
 import testResultsSchemaHGVSubmitted from "../models/TestResultsSchemaHGVSubmitted";
@@ -144,14 +144,14 @@ export class TestResultsService {
     if (testTypesValidationErrors.length) {
       return Promise.reject(new HTTPError(400, {errors: testTypesValidationErrors}));
     }
-    // temporary remove testTypes to validate only vehicle details and append testTypes to the payload again after the validation
+    // temporarily remove testTypes to validate only vehicle details and append testTypes to the payload again after the validation
     const {testTypes} = payload;
     delete payload.testTypes;
     validationSchema = validationSchema!.keys({
       countryOfRegistration: Joi.string().valid(COUNTRY_OF_REGISTRATION).required().allow("", null),
       testTypes: Joi.any().forbidden()
     });
-    validationSchema = validationSchema!.optionalKeys(["testStationType", "testerEmailAddress", "testEndTimestamp", "systemNumber", "vin"]);
+    validationSchema = validationSchema.optionalKeys(["testStationType", "testerEmailAddress", "testEndTimestamp", "systemNumber", "vin"]);
     const validation: ValidationResult<any> | any | null = Joi.validate(payload, validationSchema);
 
     if (validation !== null && validation.error) {
@@ -201,18 +201,17 @@ export class TestResultsService {
     let validation: ValidationResult<any> | any;
     for (const testType of testResult.testTypes) {
       const context = {isPassed: testType.testResult, isSubmitted: testResult.testStatus};
-      if (testTypesGroup1.includes(testType.testTypeId)) {
+      if (TEST_TYPES_GROUP1.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup1.validate(testType, {context});
-      } else if (testTypesGroup2.includes(testType.testTypeId)) {
+      } else if (TEST_TYPES_GROUP2.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup2.validate(testType, {context});
-      } else if (testTypesGroup3And4And5And10.includes(testType.testTypeId)) {
+      } else if (TEST_TYPES_GROUP3_4_5_10.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup3And4And5And10.validate(testType, {context});
-      } else if (testTypesGroup6And7And8.includes(testType.testTypeId)) {
-        console.log("aicisia");
+      } else if (TEST_TYPES_GROUP6_7_8.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup6And7And8.validate(testType, {context});
-      } else if (testTypesGroup9And11.includes(testType.testTypeId)) {
+      } else if (TEST_TYPES_GROUP9_11.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup9And11.validate(testType, {context});
-      } else if (testTypesGroup12And13.includes(testType.testTypeId)) {
+      } else if (TEST_TYPES_GROUP12_13.includes(testType.testTypeId)) {
         validation = testTypesSchemaGroup12And13.validate(testType, {context});
       } else {
         validation = {
