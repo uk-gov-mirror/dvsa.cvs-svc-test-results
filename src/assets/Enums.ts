@@ -85,7 +85,7 @@ export const HGV_TRL_ROADWORTHINESS_TEST_TYPES = {
     IDS: ["122", "91", "101", "62", "63"]
 };
 
-export const countryOfRegistration: string[] = [
+export const COUNTRY_OF_REGISTRATION: string[] = [
     "gb",
     "gba",
     "gbg",

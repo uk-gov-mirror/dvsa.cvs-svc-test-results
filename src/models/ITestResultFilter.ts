@@ -6,4 +6,5 @@ export interface ITestResultFilters {
     testStationPNumber?: any;
     status?: string;
     testVersion?: string;
+    testResultId?: string;
 }
