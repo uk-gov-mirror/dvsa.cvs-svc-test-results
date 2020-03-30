@@ -1,4 +1,3 @@
-import * as Joi from "joi";
 import {testResultsCommonSchemaSpecialistTestsCancelled} from "./SpecialistTestsCommonSchemaCancelled";
 
 const testResultsSchema = testResultsCommonSchemaSpecialistTestsCancelled;

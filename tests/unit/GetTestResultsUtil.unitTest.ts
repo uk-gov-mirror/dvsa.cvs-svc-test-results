@@ -18,21 +18,21 @@ describe("GetTestResult Util functions", () => {
   });
 
   describe("filterTestResultsByTestVersion", () => {
+    const myObject: any[] = [
+      {
+        testVersion: "current",
+        param1: "thing"
+      },
+      {
+        param1: "something else"
+      },
+      {
+        testVersion: "archived",
+        param1: "another thing"
+      },
+    ];
     context("when testVersion is CURRENT", () => {
       it("should return all test-results with testVersion=current or which don't have testVersion attribute", () => {
-        const myObject: any[] = [
-          {
-            testVersion: "current",
-            param1: "thing"
-          },
-          {
-            param1: "something else"
-          },
-          {
-            testVersion: "archived",
-            param1: "another thing"
-          },
-        ];
         const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.CURRENT);
         expect(result).toEqual([{testVersion: "current", param1: "thing"}, {param1: "something else"}]);
       });
@@ -40,19 +40,6 @@ describe("GetTestResult Util functions", () => {
 
     context("when testVersion is ARCHIVED", () => {
       it("should return all test-results with testVersion=archived", () => {
-        const myObject: any[] = [
-          {
-            testVersion: "current",
-            param1: "thing"
-          },
-          {
-            param1: "something else"
-          },
-          {
-            testVersion: "archived",
-            param1: "another thing"
-          },
-        ];
         const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
         expect(result).toEqual([{testVersion: "archived", param1: "another thing"}]);
       });

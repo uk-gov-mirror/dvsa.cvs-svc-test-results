@@ -32,7 +32,7 @@ import { ITestResult, TestType } from "../models/ITestResult";
 import { HTTPResponse } from "../models/HTTPResponse";
 import {ValidationResult} from "joi";
 import * as Joi from "joi";
-import * as _ from "lodash";
+import {cloneDeep, mergeWith} from "lodash";
 import {IMsUserDetails} from "../models/IMsUserDetails";
 
 /**
@@ -143,10 +143,10 @@ export class TestResultsService {
           const response: ITestResultData = {Count: result.Count, Items: result.Items};
           const testResults = this.checkTestResults(response);
           const oldTestResult = this.getTestResultToArchive(testResults, payload.testResultId);
-          const newTestResult: ITestResult = _.cloneDeep(oldTestResult);
+          const newTestResult: ITestResult = cloneDeep(oldTestResult);
           newTestResult.testVersion = TEST_VERSION.CURRENT;
           oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
-          _.mergeWith(newTestResult, payload);
+          mergeWith(newTestResult, payload);
           this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
           newTestResult.testResultId = uuidv4();
           return this.testResultsDAO.updateTestResult(newTestResult, oldTestResult)

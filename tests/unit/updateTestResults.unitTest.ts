@@ -3,13 +3,12 @@ import {HTTPError} from "../../src/models/HTTPError";
 import fs from "fs";
 import path from "path";
 import {MESSAGES} from "../../src/assets/Enums";
-import {cloneDeep} from "lodash";
-import {ITestResult} from "../../src/models/ITestResult";
 
 describe("updateTestResults", () => {
     let testResultsService: TestResultsService | any;
     let MockTestResultsDAO: jest.Mock;
     let testResultsMockDB: any;
+    let testToUpdate: any;
     const msUserDetails = {
         msUser: "dorel",
         msOid: "123456"
@@ -20,11 +19,14 @@ describe("updateTestResults", () => {
             return {};
         });
         testResultsService = new TestResultsService(new MockTestResultsDAO());
+        testToUpdate = testResultsMockDB[1];
+        testToUpdate.countryOfRegistration = "gb";
     });
 
     afterEach(() => {
         testResultsMockDB = null;
         testResultsService = null;
+        testToUpdate = null;
         MockTestResultsDAO.mockReset();
     });
 
@@ -39,7 +41,7 @@ describe("updateTestResults", () => {
                             },
                             getBySystemNumber: () => {
                                 return Promise.resolve({
-                                    Items: Array.of(testResultsMockDB[1]),
+                                    Items: Array.of(testToUpdate),
                                     Count: 1
                                 });
                             }
@@ -48,8 +50,6 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(5);
-                    const testToUpdate = testResultsMockDB[1];
-                    testToUpdate.countryOfRegistration = "gb";
                     return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .then((returnedRecord: any) => {
                             expect(returnedRecord).not.toEqual(undefined);
@@ -70,7 +70,7 @@ describe("updateTestResults", () => {
                             },
                             getBySystemNumber: () => {
                                 return Promise.resolve({
-                                    Items: Array.of(testResultsMockDB[1]),
+                                    Items: Array.of(testToUpdate),
                                     Count: 1
                                 });
                             }
@@ -79,8 +79,6 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    const testToUpdate = testResultsMockDB[1];
-                    testToUpdate.countryOfRegistration = "gb";
                     return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
@@ -105,8 +103,6 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    const testToUpdate = testResultsMockDB[1];
-                    testToUpdate.countryOfRegistration = "gb";
                     return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
@@ -131,8 +127,6 @@ describe("updateTestResults", () => {
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
                     expect.assertions(3);
-                    const testToUpdate = testResultsMockDB[1];
-                    testToUpdate.countryOfRegistration = "gb";
                     return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .catch((errorResponse: { statusCode: any; body: any; }) => {
                             expect(errorResponse).toBeInstanceOf(HTTPError);
@@ -144,7 +138,8 @@ describe("updateTestResults", () => {
         });
 
         context("and the payload is invalid", () => {
-            it("should return error 500 Invalid payload", () => {
+            context("and an attempt to update a test without a mandatory field is done", () => {
+                it("should return error 400 Invalid payload", () => {
                 MockTestResultsDAO = jest.fn().mockImplementation(() => {
                     return {
                         updateTestResult: () => {
@@ -152,7 +147,7 @@ describe("updateTestResults", () => {
                         },
                         getBySystemNumber: () => {
                             return Promise.resolve({
-                                Items: Array.of(testResultsMockDB[1]),
+                                Items: Array.of(testToUpdate),
                                 Count: 1
                             });
                         }
@@ -160,13 +155,66 @@ describe("updateTestResults", () => {
                 });
 
                 testResultsService = new TestResultsService(new MockTestResultsDAO());
-                testResultsMockDB[1].vehicleType = "trl";
-                return testResultsService.updateTestResult(testResultsMockDB[1].systemNumber, testResultsMockDB[1], msUserDetails)
+                testToUpdate.vehicleType = "trl";
+                return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                     .catch((errorResponse: { statusCode: any; body: any; }) => {
                         expect(errorResponse).toBeInstanceOf(HTTPError);
                         expect(errorResponse.statusCode).toEqual(400);
                         expect(errorResponse.body).toEqual({errors: ["\"trailerId\" is required"]});
                     });
+                });
+            });
+            context("and an attempt to update a test with invalid values is done", () => {
+                it("should return error 400 Invalid payload", () => {
+                    MockTestResultsDAO = jest.fn().mockImplementation(() => {
+                        return {
+                            updateTestResult: () => {
+                                return Promise.resolve({});
+                            },
+                            getBySystemNumber: () => {
+                                return Promise.resolve({
+                                    Items: Array.of(testToUpdate),
+                                    Count: 1
+                                });
+                            }
+                        };
+                    });
+
+                    testResultsService = new TestResultsService(new MockTestResultsDAO());
+                    testToUpdate.euVehicleCategory = "invalid value";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
+                      .catch((errorResponse: { statusCode: any; body: any; }) => {
+                          expect(errorResponse).toBeInstanceOf(HTTPError);
+                          expect(errorResponse.statusCode).toEqual(400);
+                          expect(errorResponse.body).toEqual({errors: ["\"euVehicleCategory\" must be one of [m1, m2, m3, n1, n2, n3, o1, o2, o3, o4, l1e-a, l1e, l2e, l3e, l4e, l5e, l6e, l7e, null]"]});
+                      });
+                });
+            });
+            context("and an attempt to update a test with a field exceeding min/max length limit is done", () => {
+                it("should return error 400 Invalid payload", () => {
+                    MockTestResultsDAO = jest.fn().mockImplementation(() => {
+                        return {
+                            updateTestResult: () => {
+                                return Promise.resolve({});
+                            },
+                            getBySystemNumber: () => {
+                                return Promise.resolve({
+                                    Items: Array.of(testToUpdate),
+                                    Count: 1
+                                });
+                            }
+                        };
+                    });
+
+                    testResultsService = new TestResultsService(new MockTestResultsDAO());
+                    testToUpdate.testerStaffId = "invalid value exceeding size limit 123456789012343454";
+                    return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
+                      .catch((errorResponse: { statusCode: any; body: any; }) => {
+                          expect(errorResponse).toBeInstanceOf(HTTPError);
+                          expect(errorResponse.statusCode).toEqual(400);
+                          expect(errorResponse.body).toEqual({errors: ["\"testerStaffId\" length must be less than or equal to 36 characters long"]});
+                      });
+                });
             });
         });
     });

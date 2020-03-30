@@ -3,6 +3,7 @@ import {TestResultsService} from "../../src/services/TestResultsService";
 import {HTTPResponse} from "../../src/models/HTTPResponse";
 import {HTTPError} from "../../src/models/HTTPError";
 import {MESSAGES} from "../../src/assets/Enums";
+jest.mock("../../src/services/TestResultsService");
 
 describe("postTestResults Function", () => {
     context("when testResult object is not present on the body", () => {

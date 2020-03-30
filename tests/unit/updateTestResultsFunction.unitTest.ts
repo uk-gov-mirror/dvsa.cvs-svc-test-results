@@ -2,6 +2,7 @@ import {updateTestResults} from "../../src/functions/updateTestResults";
 import {TestResultsService} from "../../src/services/TestResultsService";
 import {HTTPResponse} from "../../src/models/HTTPResponse";
 import {HTTPError} from "../../src/models/HTTPError";
+jest.mock("../../src/services/TestResultsService");
 
 describe("updateTestResults Function", () => {
     let event: any;
