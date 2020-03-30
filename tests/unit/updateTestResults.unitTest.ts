@@ -20,7 +20,6 @@ describe("updateTestResults", () => {
         });
         testResultsService = new TestResultsService(new MockTestResultsDAO());
         testToUpdate = cloneDeep(testResultsMockDB[30]);
-        testToUpdate.countryOfRegistration = "gb";
     });
 
     afterEach(() => {
