@@ -3,6 +3,7 @@ import {HTTPError} from "../../src/models/HTTPError";
 import fs from "fs";
 import path from "path";
 import {MESSAGES} from "../../src/assets/Enums";
+import {cloneDeep} from "lodash";
 
 describe("updateTestResults", () => {
     let testResultsService: TestResultsService | any;
@@ -19,7 +20,7 @@ describe("updateTestResults", () => {
             return {};
         });
         testResultsService = new TestResultsService(new MockTestResultsDAO());
-        testToUpdate = testResultsMockDB[1];
+        testToUpdate = cloneDeep(testResultsMockDB[1]);
         testToUpdate.countryOfRegistration = "gb";
     });
 
@@ -41,7 +42,7 @@ describe("updateTestResults", () => {
                             },
                             getBySystemNumber: () => {
                                 return Promise.resolve({
-                                    Items: Array.of(testToUpdate),
+                                    Items: Array.of(cloneDeep(testToUpdate)),
                                     Count: 1
                                 });
                             }
@@ -49,7 +50,7 @@ describe("updateTestResults", () => {
                     });
 
                     testResultsService = new TestResultsService(new MockTestResultsDAO());
-                    expect.assertions(5);
+                    expect.assertions(9);
                     return testResultsService.updateTestResult(testToUpdate.systemNumber, testToUpdate, msUserDetails)
                         .then((returnedRecord: any) => {
                             expect(returnedRecord).not.toEqual(undefined);
@@ -57,12 +58,18 @@ describe("updateTestResults", () => {
                             expect(returnedRecord).toHaveProperty("createdAt");
                             expect(returnedRecord).toHaveProperty("createdById");
                             expect(returnedRecord).toHaveProperty("createdByName");
+                            expect(returnedRecord).toHaveProperty("testVersion");
+                            expect(returnedRecord.testVersion).toEqual("current");
+                            expect(returnedRecord).toHaveProperty("testHistory");
+                            expect(returnedRecord.testHistory[0].testVersion).toEqual("archived");
                         });
                 });
             });
 
             context("when updateTestResultDAO throws error", () => {
                 it("should throw an error 500-Internal Error", () => {
+                    const existingTest = cloneDeep(testToUpdate);
+                    existingTest.testHistory = ["previously archived test"];
                     MockTestResultsDAO = jest.fn().mockImplementation(() => {
                         return {
                             updateTestResult: () => {
@@ -70,7 +77,7 @@ describe("updateTestResults", () => {
                             },
                             getBySystemNumber: () => {
                                 return Promise.resolve({
-                                    Items: Array.of(testToUpdate),
+                                    Items: Array.of(existingTest),
                                     Count: 1
                                 });
                             }

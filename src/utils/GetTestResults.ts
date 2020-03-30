@@ -6,16 +6,7 @@ import {ITestResult} from "../models/ITestResult";
 
 export class GetTestResults {
   public static validateDates(fromDateTime: string | number | Date, toDateTime: string | number | Date) {
-    return _.isDate(new Date(fromDateTime)) && _.isDate( new Date(toDateTime)) && _.isFinite((new Date(fromDateTime)).getTime()) && _.isFinite((new Date(toDateTime)).getTime());
-  }
-
-  public static removeTestResultId(testResults: Array<{ testResultId: string | number; }>) {
-    if (testResults.length > 0) {
-      for (const [index, testResult] of testResults.entries()) {
-        delete testResults[index].testResultId;
-      }
-    }
-    return testResults;
+    return _.isDate(new Date(fromDateTime)) && _.isDate(new Date(toDateTime)) && _.isFinite((new Date(fromDateTime)).getTime()) && _.isFinite((new Date(toDateTime)).getTime());
   }
 
   public static filterTestResultsByParam(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }, filterName: string | number, filterValue: any) {
@@ -32,13 +23,19 @@ export class GetTestResults {
   }
 
   public static filterTestResultsByTestVersion(testResults: ITestResult[], testVersion: string = TEST_VERSION.CURRENT): ITestResult[] {
-    return testResults.filter((testResult) => {
+    let result: ITestResult[] = [];
+    if (testVersion === TEST_VERSION.ALL) {
+      return testResults;
+    }
+    for (const testResult of testResults) {
       if (testVersion === TEST_VERSION.CURRENT) {
-        return (!testResult.testVersion || testResult.testVersion === testVersion);
-      } else {
-        return testResult.testVersion === testVersion;
+        delete testResult.testHistory;
+        result.push(testResult);
+      } else if (testVersion === TEST_VERSION.ARCHIVED) {
+        result = testResult.testHistory || [];
       }
-    });
+    }
+    return result;
   }
 
   public static filterTestResultsByDeletionFlag(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }) {

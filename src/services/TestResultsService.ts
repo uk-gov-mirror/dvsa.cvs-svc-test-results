@@ -2,7 +2,6 @@ import { HTTPError } from "../models/HTTPError";
 import { TestResultsDAO } from "../models/TestResultsDAO";
 import * as dateFns from "date-fns";
 import { GetTestResults } from "../utils/GetTestResults";
-import { v4 as uuidv4 } from "uuid";
 import {
   MESSAGES,
   ERRORS,
@@ -10,7 +9,7 @@ import {
   TEST_TYPE_CLASSIFICATION,
   TEST_RESULT,
   TEST_STATUS,
-  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION, countryOfRegistration,
+  HGV_TRL_ROADWORTHINESS_TEST_TYPES, TEST_VERSION, COUNTRY_OF_REGISTRATION,
   TEST_CODES_FOR_CALCULATING_EXPIRY
 } from "../assets/Enums";
 import testResultsSchemaHGVCancelled from "../models/TestResultsSchemaHGVCancelled";
@@ -32,7 +31,7 @@ import { ITestResult, TestType } from "../models/ITestResult";
 import { HTTPResponse } from "../models/HTTPResponse";
 import {ValidationResult} from "joi";
 import * as Joi from "joi";
-import {cloneDeep, mergeWith} from "lodash";
+import {cloneDeep, mergeWith, isArray} from "lodash";
 import {IMsUserDetails} from "../models/IMsUserDetails";
 
 /**
@@ -102,10 +101,6 @@ export class TestResultsService {
 
   public applyTestResultsFilters(data: ITestResultData, filters: ITestResultFilters) {
     let testResults = this.checkTestResults(data);
-    if (filters.testVersion === TEST_VERSION.ALL) {
-      return testResults;
-    }
-    testResults = GetTestResults.filterTestResultsByTestVersion(testResults, filters.testVersion);
     testResults = GetTestResults.filterTestResultByDate(testResults, filters.fromDateTime, filters.toDateTime);
     if (filters.testStatus) {
       testResults = GetTestResults.filterTestResultsByParam(testResults, "testStatus", filters.testStatus);
@@ -115,18 +110,22 @@ export class TestResultsService {
     }
     testResults = GetTestResults.filterTestResultsByDeletionFlag(testResults);
     testResults = GetTestResults.filterTestTypesByDeletionFlag(testResults);
-
+    if (filters.testResultId) {
+      testResults = GetTestResults.filterTestResultsByParam(testResults, "testResultId", filters.testResultId);
+      if (filters.testVersion) {
+        testResults = GetTestResults.filterTestResultsByTestVersion(testResults, filters.testVersion);
+      }
+    }
     if (testResults.length === 0) {
       throw new HTTPError(404, ERRORS.NoResourceMatch);
     }
-    testResults = GetTestResults.removeTestResultId(testResults);
     return testResults;
   }
 
   public updateTestResult(systemNumber: string, payload: ITestResult, msUserDetails: IMsUserDetails) {
     this.removeNonEditableAttributes(payload);
     let validationSchema = this.getValidationSchema(payload.vehicleType, payload.testStatus);
-    validationSchema = validationSchema!.keys({countryOfRegistration: Joi.string().valid(countryOfRegistration).required().allow("", null)});
+    validationSchema = validationSchema!.keys({countryOfRegistration: Joi.string().valid(COUNTRY_OF_REGISTRATION).required().allow("", null)});
     validationSchema = validationSchema!.optionalKeys(["testStationType", "testerEmailAddress", "testEndTimestamp", "systemNumber", "vin"]);
     const validation: ValidationResult<any> | any | null = Joi.validate(payload, validationSchema);
 
@@ -143,13 +142,18 @@ export class TestResultsService {
           const response: ITestResultData = {Count: result.Count, Items: result.Items};
           const testResults = this.checkTestResults(response);
           const oldTestResult = this.getTestResultToArchive(testResults, payload.testResultId);
+          oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
           const newTestResult: ITestResult = cloneDeep(oldTestResult);
           newTestResult.testVersion = TEST_VERSION.CURRENT;
-          oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
-          mergeWith(newTestResult, payload);
+          mergeWith(newTestResult, payload, this.arrayCustomizer);
           this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
-          newTestResult.testResultId = uuidv4();
-          return this.testResultsDAO.updateTestResult(newTestResult, oldTestResult)
+          if (!newTestResult.testHistory) {
+            newTestResult.testHistory = [oldTestResult];
+          } else {
+            delete oldTestResult.testHistory;
+            newTestResult.testHistory.push(oldTestResult);
+          }
+          return this.testResultsDAO.updateTestResult(newTestResult)
               .then((data) => {
                 return newTestResult;
               }).catch((error) => {
@@ -160,9 +164,15 @@ export class TestResultsService {
         });
   }
 
+  private arrayCustomizer(objValue: any, srcValue: any) {
+    if (isArray(objValue) && isArray(srcValue)) {
+      return srcValue;
+    }
+  }
+
   public getTestResultToArchive(testResults: ITestResult[], testResultId: string): ITestResult {
     testResults = testResults.filter((testResult) => {
-      return testResult.testResultId === testResultId;
+      return testResult.testResultId === testResultId && (testResult.testVersion === TEST_VERSION.CURRENT || !testResult.testVersion);
     });
     if (testResults.length !== 1) {
       throw new HTTPError(404, ERRORS.NoResourceMatch);

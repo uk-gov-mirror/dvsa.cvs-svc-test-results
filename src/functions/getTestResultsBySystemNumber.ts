@@ -19,7 +19,7 @@ if (process.env._X_AMZN_TRACE_ID) {
 
 export const getTestResultsBySystemNumber = async (event: {
     pathParameters: { systemNumber: any; };
-    queryStringParameters: { toDateTime: string | number | Date; fromDateTime: string | number | Date; status: string; version: string }; }) => {
+    queryStringParameters: { toDateTime: string | number | Date; fromDateTime: string | number | Date; status: string; testResultId: string; version: string; }; }) => {
     let subseg: ISubSeg | null = null;
     if (process.env._X_AMZN_TRACE_ID) {
         const segment = AWS.getSegment();
@@ -32,8 +32,9 @@ export const getTestResultsBySystemNumber = async (event: {
     const testResultsService = new TestResultsService(testResultsDAO);
 
     const systemNumber = event.pathParameters.systemNumber;
-    let testVersion = TEST_VERSION.CURRENT;
+    let testResultId;
     let testStatus = "submitted";
+    let testVersion = TEST_VERSION.CURRENT;
     let toDateTime = dateFns.endOfToday();
     let fromDateTime = dateFns.subYears(toDateTime, 2);
 
@@ -61,12 +62,15 @@ export const getTestResultsBySystemNumber = async (event: {
                 if (event.queryStringParameters.fromDateTime) {
                     fromDateTime = new Date(event.queryStringParameters.fromDateTime);
                 }
+                if (event.queryStringParameters.testResultId) {
+                    testResultId = event.queryStringParameters.testResultId;
+                }
                 if (event.queryStringParameters.version) {
                     testVersion = event.queryStringParameters.version;
                 }
             }
         }
-        return testResultsService.getTestResults({systemNumber, testStatus, fromDateTime, toDateTime, testVersion})
+        return testResultsService.getTestResults({systemNumber, testStatus, fromDateTime, toDateTime, testResultId, testVersion})
             .then((data) => {
                 return new HTTPResponse(200, data);
             })
