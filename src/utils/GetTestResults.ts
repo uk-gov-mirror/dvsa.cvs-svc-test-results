@@ -1,12 +1,12 @@
 import * as dateFns from "date-fns";
-import * as _ from "lodash";
+import {isDate, isFinite} from "lodash";
 import {TEST_VERSION} from "../assets/Enums";
 import {ITestResult} from "../models/ITestResult";
 
 
 export class GetTestResults {
   public static validateDates(fromDateTime: string | number | Date, toDateTime: string | number | Date) {
-    return _.isDate(new Date(fromDateTime)) && _.isDate(new Date(toDateTime)) && _.isFinite((new Date(fromDateTime)).getTime()) && _.isFinite((new Date(toDateTime)).getTime());
+    return isDate(new Date(fromDateTime)) && isDate(new Date(toDateTime)) && isFinite((new Date(fromDateTime)).getTime()) && isFinite((new Date(toDateTime)).getTime());
   }
 
   public static filterTestResultsByParam(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }, filterName: string | number, filterValue: any) {

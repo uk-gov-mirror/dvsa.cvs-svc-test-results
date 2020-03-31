@@ -1,7 +1,6 @@
 import {TestResultsService} from "../../src/services/TestResultsService";
 import {HTTPError} from "../../src/models/HTTPError";
-import fs from "fs";
-import path from "path";
+import testResults from "../resources/test-results.json";
 import {MESSAGES} from "../../src/assets/Enums";
 import {cloneDeep} from "lodash";
 
@@ -15,7 +14,7 @@ describe("updateTestResults", () => {
         msOid: "123456"
     };
     beforeEach(() => {
-        testResultsMockDB = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../resources/test-results.json"), "utf8"));
+        testResultsMockDB = testResults;
         MockTestResultsDAO = jest.fn().mockImplementation(() => {
             return {};
         });
