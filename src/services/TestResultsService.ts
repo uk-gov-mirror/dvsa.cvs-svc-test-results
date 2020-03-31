@@ -117,6 +117,8 @@ export class TestResultsService {
       if (filters.testVersion) {
         testResults = GetTestResults.filterTestResultsByTestVersion(testResults, filters.testVersion);
       }
+    } else {
+      testResults = GetTestResults.removeTestHistory(testResults);
     }
     if (testResults.length === 0) {
       throw new HTTPError(404, ERRORS.NoResourceMatch);
