@@ -38,6 +38,13 @@ export class GetTestResults {
     return result;
   }
 
+  public static removeTestHistory(testResults: ITestResult[]) {
+    for (const testResult of testResults) {
+      delete testResult.testHistory;
+    }
+    return testResults;
+  }
+
   public static filterTestResultsByDeletionFlag(testResults: { filter: (arg0: (testResult: any) => boolean) => void; }) {
     return testResults.filter((testResult) => {
       return !testResult.deletionFlag === true;
