@@ -28,7 +28,8 @@ export enum ERRORS {
     OdometerReadingUnitsMandatory = "\"odometerReadingUnits\" is mandatory",
     VehicleSubclassIsNotAllowed = "\"vehicleSubclass\" is not allowed",
     VehicleSubclassIsRequired = "\"vehicleSubclass\" is required",
-    EuVehicleCategoryMustBeOneOf = "\"euVehicleCategory\" must be one of [m1, null]"
+    EuVehicleCategoryMustBeOneOf = "\"euVehicleCategory\" must be one of [m1, null]",
+    NoUniqueActivityFound = "More than one activity found"
 }
 
 export enum HTTPRESPONSE {
