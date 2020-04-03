@@ -22,6 +22,10 @@ export const defectsSchemaPut = defectsCommonSchema.keys({
   })
 });
 
+export const testTypesArray = Joi.object().keys({
+  testTypes: Joi.array().min(1).required()
+});
+
 export const testTypesCommonSchema = Joi.object().keys({
   name: Joi.string().required(),
   testTypeName: Joi.string().required(),
@@ -44,7 +48,7 @@ export const testTypesCommonSchema = Joi.object().keys({
   lastUpdatedAt: Joi.string().optional(),
   certificateLink: Joi.string().optional(),
   testTypeClassification: Joi.string().required()
-});
+}).required();
 
 export const testTypesSchemaGroup1 = testTypesCommonSchema.keys({
   certificateNumber: Joi.string().required().allow("", null),

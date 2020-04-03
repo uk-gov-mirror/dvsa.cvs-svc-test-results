@@ -40,6 +40,7 @@ import * as Joi from "joi";
 import {cloneDeep, mergeWith, isArray, isEqual, differenceWith} from "lodash";
 import {IMsUserDetails} from "../models/IMsUserDetails";
 import {
+  testTypesArray,
   testTypesSchemaGroup1, testTypesSchemaGroup12And13,
   testTypesSchemaGroup2,
   testTypesSchemaGroup3And4And5And10, testTypesSchemaGroup6And7And8, testTypesSchemaGroup9And11
@@ -230,21 +231,41 @@ export class TestResultsService {
       testerStaffId: oldTestResult.testerStaffId
     };
     try {
-      const activities: any[] = await this.testResultsDAO.getActivity(params);
+      const activities: [{startTime: Date, endTime: Date}] = await this.testResultsDAO.getActivity(params);
       if (activities.length > 1) {
         return Promise.reject({statusCode: 500, body: ERRORS.NoUniqueActivityFound});
       }
+      const activity = activities[0];
+      for (const testType of newTestResult.testTypes) {
+        if (dateFns.isAfter(testType.testTypeStartTimestamp, activity.endTime) || dateFns.isBefore(testType.testTypeStartTimestamp, activity.startTime)) {
+          return Promise.reject({
+            statusCode: 400,
+            body: `The testTypeStartTimestamp must be within the visit, between ${activity.startTime} and ${activity.endTime}`
+          });
+        }
+        if (dateFns.isAfter(testType.testTypeEndTimestamp, activity.endTime) || dateFns.isBefore(testType.testTypeEndTimestamp, activity.startTime)) {
+          return Promise.reject({
+            statusCode: 400,
+            body: `The testTypeEndTimestamp must be within the visit, between ${activity.startTime} and ${activity.endTime}`
+          });
+        }
+        if (dateFns.isAfter(testType.testTypeStartTimestamp, testType.testTypeEndTimestamp)) {
+          return Promise.reject({statusCode: 400, body: ERRORS.StartTimeBeforeEndTime});
+        }
+      }
     } catch (err) {
-      return Promise.reject({statusCode: err.statusCode, body: `Activitites microservice error: ${err.body}`});
-    }
-    for (const testType of newTestResult.testTypes) {
-      // validate testTypeStart/End timestamp
+      return Promise.reject({statusCode: err.statusCode, body: `Activities microservice error: ${err.body}`});
     }
   }
 
   public validateTestTypes(testResult: ITestResult) {
     const validationErrors = [];
     let validation: ValidationResult<any> | any;
+    validation = testTypesArray.validate({testTypes: testResult.testTypes});
+    if (validation.error) {
+      validationErrors.push(this.mapErrorMessage(validation));
+      return validationErrors;
+    }
     for (const testType of testResult.testTypes) {
       const context = {isPassed: testType.testResult, isSubmitted: testResult.testStatus};
       if (TEST_TYPES_GROUP1.includes(testType.testTypeId)) {

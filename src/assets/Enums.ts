@@ -29,7 +29,8 @@ export enum ERRORS {
     VehicleSubclassIsNotAllowed = "\"vehicleSubclass\" is not allowed",
     VehicleSubclassIsRequired = "\"vehicleSubclass\" is required",
     EuVehicleCategoryMustBeOneOf = "\"euVehicleCategory\" must be one of [m1, null]",
-    NoUniqueActivityFound = "More than one activity found"
+    NoUniqueActivityFound = "More than one activity found",
+    StartTimeBeforeEndTime = "testTypeStartTimestamp must be before testTypeEndTimestamp"
 }
 
 export enum HTTPRESPONSE {
