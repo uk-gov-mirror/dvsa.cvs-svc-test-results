@@ -164,6 +164,20 @@ export class TestResultsDAO {
     return LambdaService.invoke(TestResultsDAO.lambdaInvokeEndpoints.functions.getTestNumber.name, event);
   }
 
+  public getTechRecords(searchTerm: string, searchType: string = "systemNumber") {
+    const event = {
+      httpMethod: "GET",
+      path: `/vehicles/${searchTerm}/tech-records`,
+      pathParameters: {
+        proxy: `${searchTerm}/tech-records`
+      },
+      queryStringParameters: {
+        searchCriteria: searchType
+      }
+    };
+    return LambdaService.invoke(TestResultsDAO.lambdaInvokeEndpoints.functions.getTechRecords.name, event);
+  }
+
   public getActivity(filters: {fromStartTime: Date, toStartTime: Date, activityType: string, testStationPNumber: string, testerStaffId: string}): any {
     const event = {
       path: "/activities/details",

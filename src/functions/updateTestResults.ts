@@ -48,7 +48,7 @@ export const updateTestResults = async (event: { pathParameters: { systemNumber:
             return Promise.resolve(new HTTPResponse(400, errorMessage));
         }
 
-        return testResultsService.updateTestResult(systemNumber, testResult, msUserDetails)
+        return testResultsService.moveTestRecordToNewVehicle(systemNumber, {newSystemNumber: "11000001", testResultId: "1", testNumber: "1"}, msUserDetails)
             .then((data) => {
                 return new HTTPResponse(200, data);
             })

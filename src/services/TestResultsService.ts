@@ -144,6 +144,67 @@ export class TestResultsService {
     });
   }
 
+  public moveTestRecordToNewVehicle(oldSystemNumber: string, payload: {newSystemNumber: string, testResultId: string, testNumber: string}, msUserDetails: IMsUserDetails) {
+    return this.testResultsDAO.getBySystemNumber(oldSystemNumber)
+      .then(async (result) => {
+        const response: ITestResultData = {Count: result.Count, Items: result.Items};
+        const testResults = this.checkTestResults(response);
+        const oldTestResult = this.getTestResultToArchive(testResults, payload.testResultId);
+        console.log("OLD TEST RESULT", oldTestResult.testTypes);
+        const testTypeToMove = this.getTestTypeToMove(oldTestResult, payload.testNumber);
+        console.log("TEST TYPE TO MOVE", testTypeToMove);
+        console.log("AFTER MOVE RESULT", oldTestResult.testTypes);
+        return testTypeToMove;
+        // oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
+        // const newTestResult: ITestResult = cloneDeep(oldTestResult);
+        // newTestResult.testVersion = TEST_VERSION.CURRENT;
+        // const records = await this.testResultsDAO.getTechRecords(payload.newSystemNumber);
+        // console.log("RECORDS", records);
+        // if (this.shouldGenerateNewTestCodeRe(oldTestResult, newTestResult)) {
+        //   await this.getTestTypesWithTestCodesAndClassification(newTestResult.testTypes as any[],
+        //     newTestResult.vehicleType, newTestResult.vehicleSize, newTestResult.vehicleConfiguration,
+        //     newTestResult.noOfAxles, newTestResult.euVehicleCategory, newTestResult.vehicleClass.code,
+        //     newTestResult.vehicleSubclass ? newTestResult.vehicleSubclass[0] : undefined,
+        //     newTestResult.numberOfWheelsDriven);
+        // }
+        // this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
+        // if (!newTestResult.testHistory) {
+        //   newTestResult.testHistory = [oldTestResult];
+        // } else {
+        //   delete oldTestResult.testHistory;
+        //   newTestResult.testHistory.push(oldTestResult);
+        // }
+        // return this.testResultsDAO.updateTestResult(newTestResult)
+        //   .then((data) => {
+        //     return newTestResult;
+        //   }).catch((error) => {
+        //     throw new HTTPError(500, error.message);
+        //   });
+      }).catch((error) => {
+        throw new HTTPError(error.statusCode, error.body);
+      });
+  }
+
+  public getTestTypeToMove(oldTestResult: ITestResult, testNumber: string) {
+    let testTypeToMove;
+    let indexToRemove;
+    oldTestResult.testTypes.forEach((testType, index) => {
+      if (testType.testNumber === testNumber) {
+        testTypeToMove = testType;
+        indexToRemove = index;
+        return;
+      }
+    });
+    console.log("TYPE", testTypeToMove);
+    console.log("INDEX", indexToRemove);
+    if (testTypeToMove && indexToRemove !== undefined) {
+      oldTestResult.testTypes.splice(indexToRemove, 1);
+      return testTypeToMove;
+    } else {
+      throw new HTTPError(404, ERRORS.TestTypeNotFound);
+    }
+  }
+
   public updateTestResult(systemNumber: string, payload: ITestResult, msUserDetails: IMsUserDetails) {
     this.removeNonEditableAttributes(payload);
     let validationSchema = this.getValidationSchema(payload.vehicleType, payload.testStatus);

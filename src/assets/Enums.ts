@@ -30,7 +30,8 @@ export enum ERRORS {
     VehicleSubclassIsRequired = "\"vehicleSubclass\" is required",
     EuVehicleCategoryMustBeOneOf = "\"euVehicleCategory\" must be one of [m1, null]",
     NoUniqueActivityFound = "More than one activity found",
-    StartTimeBeforeEndTime = "testTypeStartTimestamp must be before testTypeEndTimestamp"
+    StartTimeBeforeEndTime = "testTypeStartTimestamp must be before testTypeEndTimestamp",
+    TestTypeNotFound = "The test type you want to move was not found on this test record"
 }
 
 export enum HTTPRESPONSE {
