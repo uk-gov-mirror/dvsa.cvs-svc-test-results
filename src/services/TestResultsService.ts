@@ -116,6 +116,7 @@ export class TestResultsService {
         testResults = GetTestResults.filterTestResultsByTestVersion(testResults, filters.testVersion);
       }
     } else {
+      testResults = GetTestResults.filterTestResultsByTestVersion(testResults, TEST_VERSION.CURRENT);
       testResults = GetTestResults.removeTestHistory(testResults);
     }
     if (testResults.length === 0) {

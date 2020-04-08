@@ -24,7 +24,7 @@ describe("GetTestResult Util functions", () => {
         {
           testVersion: "current",
           param1: "thing",
-          testHistory: [{param2: "archived record"}]
+          testHistory: [{param2: "archived record", testVersion: "archived"}]
         }
       ];
     });
@@ -36,9 +36,36 @@ describe("GetTestResult Util functions", () => {
     });
 
     context("when testVersion is ARCHIVED", () => {
-      it("should return only the testHistory array", () => {
-        const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
-        expect(result).toEqual([{param2: "archived record"}]);
+      context("and when the test-result has testVersion: current and testHistory", () => {
+        it("should return only the testHistory array", () => {
+          const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
+          expect(result).toEqual([{param2: "archived record", testVersion: "archived"}]);
+        });
+      });
+
+      context("and when the test-result has testVersion: current and no testHistory", () => {
+        it("should return an empty array", () => {
+          delete myObject[0].testHistory;
+          const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
+          expect(result).toEqual([]);
+        });
+      });
+
+      context("and when the test-result has testVersion: archived and no testHistory", () => {
+        it("should return all the test-results with testVersion: archived", () => {
+          myObject[0].testVersion = "archived";
+          delete myObject[0].testHistory;
+          const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
+          expect(result).toEqual([{testVersion: "archived", param1: "thing"}]);
+        });
+      });
+
+      context("and when the test-result has testVersion: archived and testHistory", () => {
+        it("should return all the test-results with testVersion: archived", () => {
+          myObject[0].testVersion = "archived";
+          const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ARCHIVED);
+          expect(result).toEqual([{testVersion: "archived", param1: "thing"}, {param2: "archived record", testVersion: "archived"}]);
+        });
       });
     });
 
@@ -46,6 +73,13 @@ describe("GetTestResult Util functions", () => {
       it("should return test-results with testHistory array", () => {
         const result = GetTestResults.filterTestResultsByTestVersion(myObject, TEST_VERSION.ALL);
         expect(result).toEqual(myObject);
+      });
+    });
+
+    context("when testVersion is something else", () => {
+      it("should return empty array", () => {
+        const result = GetTestResults.filterTestResultsByTestVersion(myObject, "invalid test version");
+        expect(result).toEqual([]);
       });
     });
   });

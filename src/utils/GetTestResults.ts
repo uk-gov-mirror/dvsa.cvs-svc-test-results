@@ -28,11 +28,19 @@ export class GetTestResults {
       return testResults;
     }
     for (const testResult of testResults) {
-      if (testVersion === TEST_VERSION.CURRENT) {
+      if (testVersion === TEST_VERSION.CURRENT && (testResult.testVersion === TEST_VERSION.CURRENT || !testResult.testVersion)) {
         delete testResult.testHistory;
         result.push(testResult);
       } else if (testVersion === TEST_VERSION.ARCHIVED) {
-        result = testResult.testHistory || [];
+        if (testResult.testVersion === TEST_VERSION.ARCHIVED) {
+          result.push(testResult);
+          if (testResult.testHistory) {
+            result = result.concat(testResult.testHistory);
+            delete testResult.testHistory;
+          }
+        } else {
+          result = testResult.testHistory || [];
+        }
       }
     }
     return result;
