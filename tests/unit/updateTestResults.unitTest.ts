@@ -21,6 +21,7 @@ describe("updateTestResults", () => {
         testResultsService = new TestResultsService(new MockTestResultsDAO());
         testToUpdate = cloneDeep(testResultsMockDB[1]);
         testToUpdate.countryOfRegistration = "gb";
+        delete testToUpdate.testTypes[0].testTypeClassification;
     });
 
     afterEach(() => {

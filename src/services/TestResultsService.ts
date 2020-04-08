@@ -191,7 +191,6 @@ export class TestResultsService {
       delete testType.createdAt;
       delete testType.lastUpdatedAt;
       delete testType.certificateLink;
-      delete testType.testTypeClassification;
     }
     delete testResult.vehicleId;
     delete testResult.testEndTimestamp;
