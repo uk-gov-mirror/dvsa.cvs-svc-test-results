@@ -144,65 +144,102 @@ export class TestResultsService {
     });
   }
 
-  public moveTestRecordToNewVehicle(oldSystemNumber: string, payload: {newSystemNumber: string, testResultId: string, testNumber: string}, msUserDetails: IMsUserDetails) {
+  public moveTestResultToOtherVehicle(oldSystemNumber: string, payload: {newSystemNumber: string, testResultId: string}, msUserDetails: IMsUserDetails) {
+    if (oldSystemNumber === payload.newSystemNumber) {
+      console.log("aci");
+      return Promise.reject({statusCode: 400, body: ERRORS.IdenticalSystemNumbers});
+    }
     return this.testResultsDAO.getBySystemNumber(oldSystemNumber)
       .then(async (result) => {
         const response: ITestResultData = {Count: result.Count, Items: result.Items};
         const testResults = this.checkTestResults(response);
-        const oldTestResult = this.getTestResultToArchive(testResults, payload.testResultId);
-        console.log("OLD TEST RESULT", oldTestResult.testTypes);
-        const testTypeToMove = this.getTestTypeToMove(oldTestResult, payload.testNumber);
-        console.log("TEST TYPE TO MOVE", testTypeToMove);
-        console.log("AFTER MOVE RESULT", oldTestResult.testTypes);
-        return testTypeToMove;
-        // oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
-        // const newTestResult: ITestResult = cloneDeep(oldTestResult);
-        // newTestResult.testVersion = TEST_VERSION.CURRENT;
-        // const records = await this.testResultsDAO.getTechRecords(payload.newSystemNumber);
-        // console.log("RECORDS", records);
-        // if (this.shouldGenerateNewTestCodeRe(oldTestResult, newTestResult)) {
-        //   await this.getTestTypesWithTestCodesAndClassification(newTestResult.testTypes as any[],
-        //     newTestResult.vehicleType, newTestResult.vehicleSize, newTestResult.vehicleConfiguration,
-        //     newTestResult.noOfAxles, newTestResult.euVehicleCategory, newTestResult.vehicleClass.code,
-        //     newTestResult.vehicleSubclass ? newTestResult.vehicleSubclass[0] : undefined,
-        //     newTestResult.numberOfWheelsDriven);
-        // }
-        // this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
-        // if (!newTestResult.testHistory) {
-        //   newTestResult.testHistory = [oldTestResult];
-        // } else {
-        //   delete oldTestResult.testHistory;
-        //   newTestResult.testHistory.push(oldTestResult);
-        // }
-        // return this.testResultsDAO.updateTestResult(newTestResult)
-        //   .then((data) => {
-        //     return newTestResult;
-        //   }).catch((error) => {
-        //     throw new HTTPError(500, error.message);
-        //   });
+        const oldTestResult: ITestResult = this.getTestResultToArchive(testResults, payload.testResultId);
+        oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
+        let newTestResult: ITestResult = cloneDeep(oldTestResult);
+        newTestResult.testVersion = TEST_VERSION.CURRENT;
+        const techRecords = await this.testResultsDAO.getTechRecords(payload.newSystemNumber);
+        if (techRecords.length !== 1) {
+          throw new HTTPError(500, ERRORS.NoUniqueTechRecord);
+        }
+        const uniqueTechRecord = techRecords[0];
+        newTestResult = this.updateVehicleAttributes(newTestResult, uniqueTechRecord);
+
+        this.setAuditDetails(newTestResult, oldTestResult, msUserDetails);
+        if (!newTestResult.testHistory) {
+          newTestResult.testHistory = [oldTestResult];
+        } else {
+          delete oldTestResult.testHistory;
+          newTestResult.testHistory.push(oldTestResult);
+        }
+        if (this.shouldGenerateNewTestCodeRe(oldTestResult, newTestResult)) {
+          await this.getTestTypesWithTestCodesAndClassification(newTestResult.testTypes as any[],
+            newTestResult.vehicleType, newTestResult.vehicleSize, newTestResult.vehicleConfiguration,
+            newTestResult.noOfAxles, newTestResult.euVehicleCategory, newTestResult.vehicleClass.code,
+            newTestResult.vehicleSubclass ? newTestResult.vehicleSubclass[0] : undefined,
+            newTestResult.numberOfWheelsDriven);
+        }
+        return this.testResultsDAO.moveTestResultToOtherTechRecord(newTestResult)
+          .then((data) => {
+            return newTestResult;
+          }).catch((error) => {
+            throw new HTTPError(500, error.message);
+          });
       }).catch((error) => {
         throw new HTTPError(error.statusCode, error.body);
       });
   }
 
-  public getTestTypeToMove(oldTestResult: ITestResult, testNumber: string) {
-    let testTypeToMove;
-    let indexToRemove;
-    oldTestResult.testTypes.forEach((testType, index) => {
-      if (testType.testNumber === testNumber) {
-        testTypeToMove = testType;
-        indexToRemove = index;
-        return;
-      }
-    });
-    console.log("TYPE", testTypeToMove);
-    console.log("INDEX", indexToRemove);
-    if (testTypeToMove && indexToRemove !== undefined) {
-      oldTestResult.testTypes.splice(indexToRemove, 1);
-      return testTypeToMove;
-    } else {
-      throw new HTTPError(404, ERRORS.TestTypeNotFound);
+  public updateVehicleAttributes(newTestResult: ITestResult, uniqueTechRecord: any): ITestResult {
+    const techRecord = uniqueTechRecord.techRecord[0];
+    const primaryVrm: string = uniqueTechRecord.vrms.find((vrm: {isPrimary: boolean; vrm: string}) => vrm.isPrimary).vrm;
+    let mandatoryFieldsMissing = false;
+    if (newTestResult.vehicleType !== techRecord.vehicleType) {
+      throw new HTTPError(400, ERRORS.DifferentVehicleType);
     }
+    newTestResult.systemNumber = uniqueTechRecord.systemNumber;
+    const commonAttributesToCheck: string[] = ["vehicleConfiguration", "vehicleType", "noOfAxles", "regnDate"];
+    for (const attributeToCheck of commonAttributesToCheck) {
+      console.log("ATRIBUT", techRecord[attributeToCheck as keyof typeof techRecord]);
+      if (!techRecord[attributeToCheck as keyof typeof techRecord]) {
+        throw new HTTPError(400, ERRORS.MandatoryFieldMissing);
+      } else {
+        (newTestResult[attributeToCheck as keyof typeof newTestResult] as keyof typeof newTestResult) = techRecord[attributeToCheck as keyof typeof techRecord];
+      }
+    }
+    console.log("VEHICLE CLASS", techRecord.vehicleClass);
+    if (techRecord.vehicleClass && techRecord.vehicleClass.code && techRecord.vehicleClass.description) {
+      newTestResult.vehicleClass = techRecord.vehicleClass;
+    } else {
+      mandatoryFieldsMissing = true;
+    }
+    if (techRecord.vehicleType === VEHICLE_TYPES.PSV) {
+      console.log("PSV", techRecord.vehicleSize, techRecord.numberOfSeatbelts, primaryVrm);
+      if (techRecord.vehicleSize && techRecord.numberOfSeatbelts && primaryVrm) {
+        newTestResult.vehicleSize = techRecord.vehicleSize;
+        newTestResult.numberOfSeats = techRecord.numberOfSeatbelts;
+        newTestResult.vehicleId = primaryVrm;
+      } else {
+        mandatoryFieldsMissing = true;
+      }
+    } else if (techRecord.vehicleType === VEHICLE_TYPES.TRL) {
+      console.log("TRL", techRecord.firstUseDate);
+      if (techRecord.firstUseDate) {
+        newTestResult.firstUseDate = techRecord.firstUseDate;
+      } else {
+        mandatoryFieldsMissing = true;
+      }
+    } else if (techRecord.vehicleType === VEHICLE_TYPES.HGV) {
+      console.log("HGV", primaryVrm);
+      if (primaryVrm) {
+        newTestResult.vehicleId = primaryVrm;
+      } else {
+        mandatoryFieldsMissing = true;
+      }
+    }
+    if (mandatoryFieldsMissing) {
+      throw new HTTPError(400, ERRORS.MandatoryFieldMissing);
+    }
+    return newTestResult;
   }
 
   public updateTestResult(systemNumber: string, payload: ITestResult, msUserDetails: IMsUserDetails) {
@@ -233,7 +270,7 @@ export class TestResultsService {
         .then(async (result) => {
           const response: ITestResultData = {Count: result.Count, Items: result.Items};
           const testResults = this.checkTestResults(response);
-          const oldTestResult = this.getTestResultToArchive(testResults, payload.testResultId);
+          const oldTestResult: ITestResult = this.getTestResultToArchive(testResults, payload.testResultId);
           oldTestResult.testVersion = TEST_VERSION.ARCHIVED;
           const newTestResult: ITestResult = cloneDeep(oldTestResult);
           newTestResult.testVersion = TEST_VERSION.CURRENT;

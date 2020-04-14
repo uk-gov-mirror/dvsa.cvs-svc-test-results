@@ -214,4 +214,22 @@ export class TestResultsDAO {
     };
     return TestResultsDAO.docClient.transactWrite(query).promise();
   }
+
+  public moveTestResultToOtherTechRecord(updatedTestResult: ITestResult): Promise<PromiseResult<DocumentClient.TransactWriteItemsOutput, AWSError>> {
+    const query: DocumentClient.TransactWriteItemsInput = {
+      TransactItems: [
+        {
+          Put: {
+            TableName: this.tableName,
+            Item: updatedTestResult,
+            ConditionExpression: "testResultId = :oldTestResultId",
+            ExpressionAttributeValues: {
+              ":oldTestResultId": updatedTestResult.testResultId
+            }
+          }
+        }
+      ]
+    };
+    return TestResultsDAO.docClient.transactWrite(query).promise();
+  }
 }

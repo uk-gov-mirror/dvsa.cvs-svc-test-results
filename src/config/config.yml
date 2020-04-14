@@ -19,6 +19,11 @@ functions:
     path: /test-results/{+proxy}
     proxy: :systemNumber
     function: updateTestResults
+- moveTestResultToOtherVehicle:
+    method: PUT
+    path: /test-results/move-test/{+proxy}
+    proxy: :systemNumber
+    function: moveTestResultToOtherVehicle
 dynamodb:
   local:
     params:
@@ -52,6 +57,8 @@ endpoints:
         name: cvs-svc-global-dev-generateTestNumber
       getActivity:
         name: cvs-svc-activities-dev-main
+      getTechRecords:
+        name: cvs-svc-technical-records-dev-getTechRecords
   remote:
     params:
       apiVersion: '2015-03-31'
@@ -62,3 +69,5 @@ endpoints:
         name: test-number-${BRANCH}
       getActivity:
         name: activities-${BRANCH}
+      getTechRecords:
+        name: technical-records-${BRANCH}

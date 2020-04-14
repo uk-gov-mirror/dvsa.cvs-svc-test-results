@@ -31,7 +31,11 @@ export enum ERRORS {
     EuVehicleCategoryMustBeOneOf = "\"euVehicleCategory\" must be one of [m1, null]",
     NoUniqueActivityFound = "More than one activity found",
     StartTimeBeforeEndTime = "testTypeStartTimestamp must be before testTypeEndTimestamp",
-    TestTypeNotFound = "The test type you want to move was not found on this test record"
+    TestTypeNotFound = "The test type you want to move was not found on this test record",
+    NoUniqueTechRecord = "Failed to uniquely identify a tech-record",
+    DifferentVehicleType = "Test-result can only be moved to a tech-record of the same vehicle type",
+    MandatoryFieldMissing = "Tech-record mandatory field is missing",
+    IdenticalSystemNumbers = "The new system number is identical to the current system number"
 }
 
 export enum HTTPRESPONSE {
