@@ -172,6 +172,7 @@ export class TestResultsService {
           newTestResult.testHistory.push(oldTestResult);
         }
         if (this.shouldGenerateNewTestCodeRe(oldTestResult, newTestResult)) {
+          console.log("should generate");
           await this.getTestTypesWithTestCodesAndClassification(newTestResult.testTypes as any[],
             newTestResult.vehicleType, newTestResult.vehicleSize, newTestResult.vehicleConfiguration,
             newTestResult.noOfAxles, newTestResult.euVehicleCategory, newTestResult.vehicleClass.code,
@@ -197,7 +198,7 @@ export class TestResultsService {
       throw new HTTPError(400, ERRORS.DifferentVehicleType);
     }
     newTestResult.systemNumber = uniqueTechRecord.systemNumber;
-    const commonAttributesToCheck: string[] = ["vehicleConfiguration", "vehicleType", "noOfAxles", "regnDate"];
+    const commonAttributesToCheck: string[] = ["vehicleConfiguration", "vehicleType", "noOfAxles"];
     for (const attributeToCheck of commonAttributesToCheck) {
       console.log("ATRIBUT", techRecord[attributeToCheck as keyof typeof techRecord]);
       if (!techRecord[attributeToCheck as keyof typeof techRecord]) {
@@ -207,7 +208,7 @@ export class TestResultsService {
       }
     }
     console.log("VEHICLE CLASS", techRecord.vehicleClass);
-    if (techRecord.vehicleClass && techRecord.vehicleClass.code && techRecord.vehicleClass.description) {
+    if (techRecord.vehicleClass && techRecord.vehicleClass.code && techRecord.vehicleClass.description && techRecord.regnDate) {
       newTestResult.vehicleClass = techRecord.vehicleClass;
     } else {
       mandatoryFieldsMissing = true;

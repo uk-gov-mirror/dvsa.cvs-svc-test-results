@@ -34,15 +34,8 @@ export const moveTestResultToOtherVehicle = async (event: { pathParameters: { sy
   const msUserDetails = event.body.msUserDetails;
 
   try {
-    if (!newSystemNumber) {
-      const errorMessage = MESSAGES.BAD_REQUEST + " newSystemNumber not provided";
-      if (subseg) {
-        subseg.addError(errorMessage);
-      }
-      return Promise.resolve(new HTTPResponse(400, errorMessage));
-    }
-    if (!testResultId) {
-      const errorMessage = MESSAGES.BAD_REQUEST + " testResultId not provided";
+    if (!newSystemNumber || !testResultId) {
+      const errorMessage = MESSAGES.BAD_REQUEST + " newSystemNumber and testResultId are mandatory";
       if (subseg) {
         subseg.addError(errorMessage);
       }
