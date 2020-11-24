@@ -83,10 +83,7 @@ describe("getTestResultsByTesterStaffId path of TestResultsService", () => {
       MockTestResultsDAO = jest.fn().mockImplementation(() => {
         return {
           getByTesterStaffId: () => {
-            return Promise.resolve({
-              Items: [],
-              Count: 0
-            });
+            return Promise.resolve([]);
           }
         };
       });
