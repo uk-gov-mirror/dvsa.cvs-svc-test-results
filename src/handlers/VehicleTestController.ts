@@ -111,6 +111,8 @@ export class VehicleTestController implements IVehicleTestController {
       );
       payloadWithAnniversaryDate.vehicleId = payloadWithAnniversaryDate.vrm;
       const result = await this.dataProvider.insertTestResult(payloadWithAnniversaryDate);
+      utils.LoggingUtil.logDefectReportingSilently(payloadWithAnniversaryDate);
+
       return result;
     } catch (error) {
       if (error.statusCode === 400 && error.message === enums.MESSAGES.CONDITIONAL_REQUEST_FAILED) {
