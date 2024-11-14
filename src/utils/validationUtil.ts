@@ -7,6 +7,7 @@ import {
   HGV_TRL_RWT_TEST,
   IVA_TEST,
   LEC_TEST,
+  MSVA_TEST,
   TIR_TEST,
 } from '@dvsa/cvs-microservice-common/classes/testTypes/Constants';
 import {
@@ -288,7 +289,10 @@ export class ValidationUtil {
 
   private static isIvaTest(tests: TestTypeSchema[]): boolean {
     return tests.every((test: TestTypeSchema) =>
-      TestTypeHelper.validateTestTypeIdInLists([IVA_TEST], test.testTypeId),
+      TestTypeHelper.validateTestTypeIdInLists(
+        [IVA_TEST, MSVA_TEST],
+        test.testTypeId,
+      ),
     );
   }
 
