@@ -74,4 +74,10 @@ export const trlSubmitted = testResultsCommonSchema.keys({
   trailerId: Joi.string().required(),
   testTypes: Joi.array().items(testTypesSchema).required(),
   firstUseDate: Joi.string().allow('', null),
+  recalls: Joi.object()
+    .keys({
+      hasRecall: Joi.boolean().required(),
+      manufacturer: Joi.string().required().allow(null),
+    })
+    .optional(),
 });
