@@ -80,8 +80,8 @@ export const hgvSubmitted = testResultsCommonSchema.keys({
   regnDate: Joi.string().allow('', null),
   recalls: Joi.object()
     .keys({
-        hasRecall: Joi.boolean().required(),
-        manufacturer: Joi.string().required().allow(null),
+      hasRecall: Joi.boolean().required(),
+      manufacturer: Joi.string().required().allow(null),
     })
     .optional(),
 });
