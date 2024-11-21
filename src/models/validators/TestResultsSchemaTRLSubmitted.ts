@@ -77,7 +77,7 @@ export const trlSubmitted = testResultsCommonSchema.keys({
   recalls: Joi.object()
     .keys({
       hasRecall: Joi.boolean().required(),
-      manufacturer: Joi.string().required().allow(null),
+      manufacturer: Joi.string().required().allow('', null),
     })
     .optional(),
 });

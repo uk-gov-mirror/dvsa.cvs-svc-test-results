@@ -4285,6 +4285,14 @@ describe('insertTestResult', () => {
             expect(validationResult).toBe(true);
           });
 
+          it('should create the record successfully when hasRecalls is present and manufacturer is empty string', () => {
+            recallsMock.manufacturer = '';
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
           it('should create the record successfully when recalls object is not on payload', () => {
             const validationResult =
               ValidationUtil.validateInsertTestResultPayload(testResult);
@@ -4310,6 +4318,14 @@ describe('insertTestResult', () => {
 
           it('should create the record successfully when hasRecalls is present and manufacturer is null', () => {
             recallsMock.manufacturer = null;
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when hasRecalls is present and manufacturer is empty string', () => {
+            recallsMock.manufacturer = '';
             testResult.recalls = recallsMock;
             const validationResult =
               ValidationUtil.validateInsertTestResultPayload(testResult);
