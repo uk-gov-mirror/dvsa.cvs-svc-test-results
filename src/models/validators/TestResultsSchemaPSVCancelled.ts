@@ -79,4 +79,10 @@ export const psvCancelled = testResultsCommonSchema.keys({
   countryOfRegistration: Joi.string().required().allow('', null),
   vehicleSize: Joi.string().valid('small', 'large').required(),
   testTypes: Joi.array().items(testTypesSchema).required(),
+  recalls: Joi.object()
+    .keys({
+      hasRecall: Joi.boolean().required(),
+      manufacturer: Joi.string().required().allow('', null),
+    })
+    .optional(),
 });

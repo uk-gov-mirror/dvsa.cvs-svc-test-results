@@ -7,6 +7,8 @@ import {
   TestTypeSchema,
 } from '@dvsa/cvs-type-definitions/types/v1/test-result';
 import { TestResults } from '@dvsa/cvs-type-definitions/types/v1/enums/testResult.enum';
+import { RecallsSchema } from '@dvsa/cvs-type-definitions/types/v1/recalls';
+import { TestStatus } from '@dvsa/cvs-type-definitions/types/v1/enums/testStatus.enum';
 import {
   ERRORS,
   MESSAGES,
@@ -4251,5 +4253,182 @@ describe('insertTestResult', () => {
         });
       },
     );
+  });
+
+  describe('Vehicle Recalls', () => {
+    let testResult: TestResultSchema;
+    let recallsMock: RecallsSchema;
+
+    describe('validateInsertTestResultPayload', () => {
+      describe('when inserting a test result with valid vehicle recalls present', () => {
+        context('and the status is submitted', () => {
+          beforeEach(() => {
+            testResult = { ...testResultsPostMock[0] } as TestResultSchema;
+            recallsMock = {
+              hasRecall: true,
+              manufacturer: 'manufacturer',
+            };
+          });
+
+          it('should create the record successfully when hasRecalls and manufacturer are present', () => {
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when hasRecalls is present and manufacturer is null', () => {
+            recallsMock.manufacturer = null;
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when hasRecalls is present and manufacturer is empty string', () => {
+            recallsMock.manufacturer = '';
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when recalls object is not on payload', () => {
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+        });
+        context('and the status is cancelled', () => {
+          beforeEach(() => {
+            testResult = { ...testResultsPostMock[0] } as TestResultSchema;
+            testResult.testStatus = 'cancelled' as TestStatus;
+            recallsMock = {
+              hasRecall: true,
+              manufacturer: 'manufacturer',
+            };
+          });
+
+          it('should create the record successfully when hasRecalls and manufacturer are present', () => {
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when hasRecalls is present and manufacturer is null', () => {
+            recallsMock.manufacturer = null;
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when hasRecalls is present and manufacturer is empty string', () => {
+            recallsMock.manufacturer = '';
+            testResult.recalls = recallsMock;
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+
+          it('should create the record successfully when recalls object is not on payload', () => {
+            const validationResult =
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            expect(validationResult).toBe(true);
+          });
+        });
+      });
+      describe('when inserting a test result', () => {
+        beforeEach(() => {
+          testResult = { ...testResultsPostMock[0] } as TestResultSchema;
+          recallsMock = {
+            hasRecall: true,
+            manufacturer: 'manufacturer',
+          };
+        });
+
+        context('with an invalid recalls object value present', () => {
+          it('should throw validation error', () => {
+            testResult.recalls = true as any;
+            try {
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            } catch (error) {
+              expect(error).toBeInstanceOf(HTTPError);
+              expect(error.statusCode).toBe(400);
+              expect(error.body).toEqual({
+                errors: ['"recalls" must be of type object'],
+              });
+            }
+          });
+        });
+        context(
+          'with an invalid hasRecall value in recalls object present',
+          () => {
+            it('should throw validation error', () => {
+              recallsMock.hasRecall = 'dummy value' as any;
+              testResult.recalls = recallsMock;
+              try {
+                ValidationUtil.validateInsertTestResultPayload(testResult);
+              } catch (error) {
+                expect(error).toBeInstanceOf(HTTPError);
+                expect(error.statusCode).toBe(400);
+                expect(error.body).toEqual({
+                  errors: ['"recalls.hasRecall" must be a boolean'],
+                });
+              }
+            });
+          },
+        );
+        context('with hasRecall missing from recalls object', () => {
+          it('should throw validation error', () => {
+            recallsMock.hasRecall = undefined as any;
+            testResult.recalls = recallsMock;
+            try {
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            } catch (error) {
+              expect(error).toBeInstanceOf(HTTPError);
+              expect(error.statusCode).toBe(400);
+              expect(error.body).toEqual({
+                errors: ['"recalls.hasRecall" is required'],
+              });
+            }
+          });
+        });
+        context(
+          'with an invalid manufacture value in recalls object present',
+          () => {
+            it('should throw validation error', () => {
+              recallsMock.manufacturer = 123 as any;
+              testResult.recalls = recallsMock;
+              try {
+                ValidationUtil.validateInsertTestResultPayload(testResult);
+              } catch (error) {
+                expect(error).toBeInstanceOf(HTTPError);
+                expect(error.statusCode).toBe(400);
+                expect(error.body).toEqual({
+                  errors: ['"recalls.manufacturer" must be a string'],
+                });
+              }
+            });
+          },
+        );
+        context('with manufacturer missing from recalls object', () => {
+          it('should throw validation error', () => {
+            recallsMock.manufacturer = undefined as any;
+            testResult.recalls = recallsMock;
+            try {
+              ValidationUtil.validateInsertTestResultPayload(testResult);
+            } catch (error) {
+              expect(error).toBeInstanceOf(HTTPError);
+              expect(error.statusCode).toBe(400);
+              expect(error.body).toEqual({
+                errors: ['"recalls.manufacturer" is required'],
+              });
+            }
+          });
+        });
+      });
+    });
   });
 });

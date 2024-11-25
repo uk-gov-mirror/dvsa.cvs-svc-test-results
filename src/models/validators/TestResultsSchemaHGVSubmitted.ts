@@ -78,4 +78,10 @@ export const hgvSubmitted = testResultsCommonSchema.keys({
     .required(),
   testTypes: Joi.array().items(testTypesSchema).required(),
   regnDate: Joi.string().allow('', null),
+  recalls: Joi.object()
+    .keys({
+      hasRecall: Joi.boolean().required(),
+      manufacturer: Joi.string().required().allow('', null),
+    })
+    .optional(),
 });
