@@ -53,7 +53,7 @@ export const testTypesCommonSchema = Joi.object()
         Joi.object().keys({
           referenceNumber: Joi.string().max(10).required(),
           defectName: Joi.string().max(200).required(),
-          defectNotes: Joi.string().max(200).required().allow(null),
+          defectNotes: Joi.string().max(200).allow(null),
         }),
       )
       .required()
