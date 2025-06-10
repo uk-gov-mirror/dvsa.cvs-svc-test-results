@@ -1,8 +1,6 @@
 import { cloneDeep, differenceWith, isEqual, mergeWith } from 'lodash';
-import {
-  TestResultSchema,
-  TestTypeSchema,
-} from '@dvsa/cvs-type-definitions/types/v1/test-result';
+import { TestResultSchema } from '@dvsa/cvs-type-definitions/types/v1/test-result';
+import { TestResultTestTypeSchema } from '@dvsa/cvs-type-definitions/types/v1/test-result-test-type';
 import { TestResults } from '@dvsa/cvs-type-definitions/types/v1/enums/testResult.enum';
 import * as enums from '../assets/Enums';
 import * as models from '../models';
@@ -100,11 +98,11 @@ export class VehicleTestController implements IVehicleTestController {
           testTypeParams,
         );
       payload.testTypes =
-        testTypesWithTestCodesAndClassification as TestTypeSchema[];
+        testTypesWithTestCodesAndClassification as TestResultTestTypeSchema[];
 
       const payloadWithTestNumber =
         await this.dataProvider.setTestNumberForEachTestType(payload);
-      payload.testTypes = payloadWithTestNumber as TestTypeSchema[];
+      payload.testTypes = payloadWithTestNumber as TestResultTestTypeSchema[];
 
       const payloadWithExpiryDate = await this.generateExpiryDate(payload);
       const payloadWithCertificateNumber =
@@ -202,40 +200,42 @@ export class VehicleTestController implements IVehicleTestController {
       const registrationDate =
         VehicleTestController.getRegistrationOrFirstUseDate(payload);
 
-      expiryTestTypes.forEach((testType: TestTypeSchema, index: number) => {
-        const testTypeForExpiry: TestTypeForExpiry = {
-          testType,
-          vehicleType:
-            enums.VEHICLE_TYPE[
-              payload.vehicleType.toUpperCase() as keyof typeof enums.VEHICLE_TYPE
-            ],
-          recentExpiry,
-          regnOrFirstUseDate: registrationDate ?? '',
-          hasHistory: !DateProvider.isSameAsEpoc(recentExpiry),
-          hasRegistration: DateProvider.isValidDate(
-            VehicleTestController.getRegistrationOrFirstUseDate(
-              payload,
-            ) as string,
-          ),
-        };
-        console.log('testTypeForExpiry');
-        console.log(testTypeForExpiry);
+      expiryTestTypes.forEach(
+        (testType: TestResultTestTypeSchema, index: number) => {
+          const testTypeForExpiry: TestTypeForExpiry = {
+            testType,
+            vehicleType:
+              enums.VEHICLE_TYPE[
+                payload.vehicleType.toUpperCase() as keyof typeof enums.VEHICLE_TYPE
+              ],
+            recentExpiry,
+            regnOrFirstUseDate: registrationDate ?? '',
+            hasHistory: !DateProvider.isSameAsEpoc(recentExpiry),
+            hasRegistration: DateProvider.isValidDate(
+              VehicleTestController.getRegistrationOrFirstUseDate(
+                payload,
+              ) as string,
+            ),
+          };
+          console.log('testTypeForExpiry');
+          console.log(testTypeForExpiry);
 
-        if (payload.testEndTimestamp) {
-          console.log(
-            'testEndTimestamp exists, setting date provider test date',
-          );
-          this.dateProvider.setTestDate(new Date(payload.testEndTimestamp));
-        } else {
-          console.log(
-            'testEndTimestamp does not exist, date provider will set test date to today',
-          );
-        }
+          if (payload.testEndTimestamp) {
+            console.log(
+              'testEndTimestamp exists, setting date provider test date',
+            );
+            this.dateProvider.setTestDate(new Date(payload.testEndTimestamp));
+          } else {
+            console.log(
+              'testEndTimestamp does not exist, date provider will set test date to today',
+            );
+          }
 
-        const strategy = this.getExpiryStrategy(testTypeForExpiry);
-        console.log(strategy.constructor.name);
-        testType.testExpiryDate = strategy.getExpiryDate();
-      });
+          const strategy = this.getExpiryStrategy(testTypeForExpiry);
+          console.log(strategy.constructor.name);
+          testType.testExpiryDate = strategy.getExpiryDate();
+        },
+      );
       console.log('generateExpiryDate: testTypes ->', payload.testTypes);
       return await Promise.resolve(payload);
     } catch (error) {
@@ -261,7 +261,7 @@ export class VehicleTestController implements IVehicleTestController {
 
   private static calculateAnniversaryDate(payload: TestResultSchema) {
     const { vehicleType } = payload;
-    payload.testTypes.forEach((testType: TestTypeSchema) => {
+    payload.testTypes.forEach((testType: TestResultTestTypeSchema) => {
       const { testExpiryDate } = testType;
       if (!testExpiryDate) {
         return;
@@ -419,7 +419,7 @@ export class VehicleTestController implements IVehicleTestController {
   }
 
   private static shouldGenerateCertificateNumber(
-    testType: TestTypeSchema,
+    testType: TestResultTestTypeSchema,
     vehicleType: string,
   ): boolean {
     if (
@@ -450,7 +450,7 @@ export class VehicleTestController implements IVehicleTestController {
   }
 
   private static isSpecialistTestWithoutCertificateNumber(
-    testType: TestTypeSchema,
+    testType: TestResultTestTypeSchema,
   ): boolean {
     return (
       (testType.testTypeClassification ===
