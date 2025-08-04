@@ -26,24 +26,19 @@ plugins:
   - serverless-plugin-typescript
 
 custom:
-  serverless-offline:
-    httpPort: 3006
-  serverless-dynamodb:
+  dynamodb:
+    stages:
+      - dev
     start:
-      port: 8004
+      port: 8000
       inMemory: true
       migrate: true
       seed: true
-      noStart: false
-      host: 127.0.0.1
     seed:
-      test-results:
+      dev:
         sources:
-          - table: cvs-local-test-results
+          - table: cvs-${self:provider.environment.BRANCH}-test-results
             sources: [./tests/resources/test-results.json]
-    stages:
-      - dev
-      - test
 
 functions:
   getTestResults:
@@ -86,7 +81,7 @@ resources:
     Users:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: cvs-local-test-results
+        TableName:  cvs-${self:provider.environment.BRANCH}-test-results
         AttributeDefinitions:
           - AttributeName: vin
             AttributeType: S
