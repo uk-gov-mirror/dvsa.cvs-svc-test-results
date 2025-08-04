@@ -3,21 +3,14 @@ service: cvs-svc-test-results
 provider:
   name: aws
   runtime: nodejs18.x
-  apiGateway:
-    shouldStartNameWithService: true
-  tracing:
-    apiGateway: true
-  region: eu-west-1
   stage: dev
-  iam:
-    role:
-      statements:
-        - Effect: 'Allow'
-          Action:
-            - 'xray:PutTraceSegments'
-            - 'xray:PutTelemetryRecords'
-          Resource:
-            - '*'
+  timeout: 60
+  region: eu-west-1
+  environment:
+    BRANCH: local
+    DDB_OFFLINE_ENDPOINT: http://localhost:8000
+    AWS_ACCESS_KEY_ID: accessKeyId
+    AWS_SECRET_ACCESS_KEY: secretAccessKey
 
 plugins:
   - serverless-dynamodb
