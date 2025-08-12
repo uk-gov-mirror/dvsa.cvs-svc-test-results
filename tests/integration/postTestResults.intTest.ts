@@ -2,7 +2,7 @@ import supertest from 'supertest';
 import { TestResultSchema } from '@dvsa/cvs-type-definitions/types/v1/test-result';
 import testResultsPostMock from '../resources/test-results-post.json';
 
-const url = 'http://localhost:8000/';
+const url = 'http://localhost:8000/dev';
 const request = supertest(url);
 
 describe('postTestResults', () => {
