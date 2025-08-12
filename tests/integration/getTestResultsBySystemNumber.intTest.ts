@@ -2,7 +2,7 @@
 import supertest from 'supertest';
 import testResultsMockDB from '../resources/test-results.json';
 
-const url = 'http://localhost:8000/dev';
+const url = 'http://localhost:3006/';
 const request = supertest(url);
 
 describe('getTestResultsBySystemNumber', () => {
